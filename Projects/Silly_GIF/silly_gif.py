@@ -37,32 +37,36 @@ if not os.path.exists(IMAGE_DIR):
     os.makedirs(IMAGE_DIR)
 
 # Generate the image files for the animation
-for i, t in enumerate(range(DURATION * 15)):
+for i, t in enumerate(ANIMATION_CLIP.iter_frames(fps=15, with_times=True)):
     img_path = os.path.join(IMAGE_DIR, f"frame_{i:04d}.png")
-    ANIMATION_CLIP.to_ImageClip(t / 15.0).save_frame(img_path)
+    ImageClip(t).save_frame(img_path)
 
-# Create the image sequence clip from the generated image files
-ANIMATION_CLIP = ImageSequenceClip(os.path.join(IMAGE_DIR, "frame_%04d.png"), fps=15)
+# Check if the image sequence directory exists
+if os.path.exists(IMAGE_DIR):
+    # Create the image sequence clip from the generated image files
+    ANIMATION_CLIP = ImageSequenceClip(os.path.join(IMAGE_DIR, "frame_%04d.png"), fps=15)
 
-# Repeat the animation and add each repetition to the video file
-ANIMATION_CLIP = ANIMATION_CLIP.set_duration(ANIMATION_CLIP.duration * N_REPETITIONS)
+    # Repeat the animation and add each repetition to the video file
+    ANIMATION_CLIP = ANIMATION_CLIP.set_duration(ANIMATION_CLIP.duration * N_REPETITIONS)
 
-# Create the background clip
-bg_clip = ColorClip(size=(WIDTH, HEIGHT), color=BG_COLOR)
+    # Create the background clip
+    bg_clip = ColorClip(size=(WIDTH, HEIGHT), color=BG_COLOR)
 
-# Combine the animation and background clips
-FINAL_CLIP = CompositeVideoClip([bg_clip, ANIMATION_CLIP])
+    # Combine the animation and background clips
+    FINAL_CLIP = CompositeVideoClip([bg_clip, ANIMATION_CLIP])
 
-# Set the path to where the GIF will be saved
-GIF_PATH = os.path.join(os.getcwd(), "you-are-amazingly-silly.gif")
+    # Set the path to where the GIF will be saved
+    GIF_PATH = os.path.join(os.getcwd(), "you-are-amazingly-silly.gif")
 
-# Write the GIF file
-FINAL_CLIP.write_gif(GIF_PATH, fps=15, program=IMAGEMAGICK_PATH, opt="optimizeplus")
+    # Write the GIF file
+    FINAL_CLIP.write_gif(GIF_PATH, fps=15, program=IMAGEMAGICK_PATH, opt="optimizeplus")
 
-# Print the path of the saved GIF
-print("GIF saved at:", GIF_PATH)
+    # Print the path of the saved GIF
+    print("GIF saved at:", GIF_PATH)
 
-# Delete the image files
-for f in os.listdir(IMAGE_DIR):
-    os.remove(os.path.join(IMAGE_DIR, f))
-os.rmdir(IMAGE_DIR)
+    # Delete the image files
+    for f in os.listdir(IMAGE_DIR):
+        os.remove(os.path.join(IMAGE_DIR, f))
+    os.rmdir(IMAGE_DIR)
+else:
+    print(f"Error: {IMAGE_DIR} directory does not exist")
